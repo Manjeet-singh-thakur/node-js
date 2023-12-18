@@ -6,6 +6,11 @@ import userRoutes from './src/routes/userRoutes.js'
 app.use(express.json());
 app.use('/api/v1', userRoutes);
 
+app.get('/',function(req,res){
+res.send('welcome')
+})
+
+
 const port = 5000;
 app.listen(port, () => {
     console.log('server is running');
