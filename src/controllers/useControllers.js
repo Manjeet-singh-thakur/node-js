@@ -184,7 +184,10 @@ const login = async (req, res) => {
         }, envConfig.SECRET_KEY, {
             expiresIn: '1h'
         })
-        return res.status(201).json({ message: 'login succesfully', token })
+        let userData = {
+            token: token
+        }
+        return res.status(201).json({ message: 'login succesfully', userData })
     } catch (error) {
         console.error("Error in login")
         return res.status(500).json({ message: 'login failed', error });
@@ -297,7 +300,7 @@ const changePassword = async (req, res) => {
         if (!oldpass) {
             return res.status(500).json({ message: 'oldPassword is not matched' })
         }
-        
+
         if (newPassword !== confirmPassword) {
             return res.status(500).json({ message: 'newpassword is not matched with confirmpassword ' })
         }
