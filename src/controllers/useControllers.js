@@ -93,15 +93,9 @@ const getallUser = async (req, res) => {
 // get user by id
 const getUserByid = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(404).json({ message: 'token is missing' })
-        }
-        const decode = Jwt.verify(token, envConfig.SECRET_KEY);
-        const getUserid = await Userdata.findById(decode._id);
-        if (!decode._id) {
-            return res.status(404).json({ message: 'id not found in payload data' })
-        }
+        const userId = req.user?._id
+        // console.log(userId)
+        const getUserid = await Userdata.findById(userId);
         if (!getUserid) {
             return res.status(404).json({ message: 'user not found' })
         } else {
@@ -117,18 +111,11 @@ const getUserByid = async (req, res) => {
 
 const updateUserbyId = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1];
-        if (!token) {
-            return res.status(401).json({ message: 'token is missing' });
-        }
+        const userId = req.user?._id
         const { userName, address } = req.body;
-        const decode = Jwt.verify(token, envConfig.SECRET_KEY);
         const updateuser = await Userdata.findByIdAndUpdate(
-            decode._id, { userName, address },
+            userId, { userName, address },
             { new: true });
-        if (!decode._id) {
-            return res.status(404).json({ message: 'id is missing in payload data' })
-        }
         if (!updateuser) {
             return res.status(404).json({ message: 'user cant update' });
         } else {
@@ -142,15 +129,8 @@ const updateUserbyId = async (req, res) => {
 // delete user by id;
 const deletUserbyId = async (req, res) => {
     try {
-        const token = req.header('Authorization')?.split(' ')[1]
-        if (!token) {
-            return res.status(401).json({ message: 'token is missing' });
-        }
-        const decode = Jwt.verify(token, envConfig.SECRET_KEY);
-        const delteUser = await Userdata.findByIdAndDelete(decode._id)
-        if (!decode._id) {
-            return res.status(404).json({ message: 'id is missing in payload' });
-        }
+        const userId = req.user?._id
+        const delteUser = await Userdata.findByIdAndDelete(userId)
         if (!delteUser) {
             return res.status(500).json({ message: 'user not deleted' })
         } else {
@@ -278,24 +258,13 @@ const resetPasswprd = async (req, res) => {
 
 // change password
 const changePassword = async (req, res) => {
-
     try {
-        const { oldPassword, newPassword, confirmPassword } = req.body;
-
-        const token = req.header('Authorization')?.split(' ')[1];
-
-        if (!token) {
-            return res.status(401).json({ message: 'token is missing' });
-        }
-        const decode = Jwt.verify(token, envConfig.SECRET_KEY);
-        const user = await Userdata.findById(decode._id);
+        const {oldPassword,newPassword,confirmPassword}=req.body;
+        const userId = req.user?._id
+        const user = await Userdata.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'user not found' });
         }
-        if (!decode._id) {
-            return res.status(404).json({ message: 'id is not present in payload data' });
-        }
-
         const oldpass = await bcrypt.compare(oldPassword, user.password);
         if (!oldpass) {
             return res.status(500).json({ message: 'oldPassword is not matched' })
@@ -307,7 +276,7 @@ const changePassword = async (req, res) => {
         const salt = await bcrypt.genSalt(10)
         const newHashpassword = await bcrypt.hash(newPassword, salt)
         user.password = newHashpassword;
-        const updateOne = await Userdata.findByIdAndUpdate(decode._id, { password: newHashpassword }, { new: true });
+        const updateOne = await Userdata.findByIdAndUpdate(userId, { password: newHashpassword }, { new: true });
         return res.status(200).json({ message: 'oldPassword is updated', updateOne })
 
     } catch (error) {

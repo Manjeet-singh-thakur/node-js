@@ -2,15 +2,15 @@ import Jwt from 'jsonwebtoken';
 import envConfig from '../config/envConfig.js';
 
 const authmiddleware = (req, res, next) => {
+
     const token = req.header('Authorization')?.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({ message: 'Authorization token is missing' });
     }
-
     try {
         Jwt.verify(token, envConfig.SECRET_KEY,
-            (error, user) => {
+            (error, user) => { 
                 if (error) {
                     return res.status(403).json({ message: 'Invalid token' });
                 }
